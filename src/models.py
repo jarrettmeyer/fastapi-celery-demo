@@ -16,3 +16,8 @@ class GetTaskResponse(BaseModel):
     task_id: str
     status: str
     date_done: Optional[datetime]
+
+class GetTaskWebsocketResponse(BaseModel):
+    task_id: str
+    status: str
+    date_done: Optional[str]

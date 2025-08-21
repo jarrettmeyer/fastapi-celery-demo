@@ -1,8 +1,15 @@
+import asyncio
+
 from celery.result import AsyncResult
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import JSONResponse
 
-from .models import CreateTaskRequest, CreateTaskResponse, GetTaskResponse
+from .models import (
+    CreateTaskRequest,
+    CreateTaskResponse,
+    GetTaskResponse,
+    GetTaskWebsocketResponse,
+)
 from .worker import start_task
 
 app = FastAPI()
@@ -22,9 +29,7 @@ async def create_task(request: CreateTaskRequest):
 
 @app.get("/tasks/{task_id}", response_model=GetTaskResponse)
 async def get_task(task_id: str):
-    result = AsyncResult(
-        id=task_id,
-    )
+    result = AsyncResult(id=task_id)
 
     if not result:
         raise HTTPException(
@@ -33,7 +38,7 @@ async def get_task(task_id: str):
         )
 
     response = GetTaskResponse(
-        task_id=task_id,
+        task_id=str(result.id),
         status=result.status,
         date_done=result.date_done,
     )
@@ -41,3 +46,27 @@ async def get_task(task_id: str):
         status_code=status.HTTP_200_OK,
         content=response.model_dump(),
     )
+
+
+@app.websocket("/tasks/{task_id}/ws")
+async def get_task_websocket(ws: WebSocket, task_id: str):
+    await ws.accept()
+    last_known_status = None
+
+    try:
+        while True:
+            result = AsyncResult(id=task_id)
+            if result.status != last_known_status:
+                print(f"Task {task_id} state changed from {last_known_status} to {result.status}")
+                response = GetTaskWebsocketResponse(
+                    task_id=str(result.id),
+                    status=result.status,
+                    date_done=str(result.date_done) if result.date_done else None,
+                )
+                await ws.send_json(response.model_dump())
+                last_known_status = result.status
+            if result.status in ("SUCCESS"):
+                break
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        pass
