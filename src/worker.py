@@ -5,7 +5,15 @@ from celery import Celery, Task
 
 from . import config
 
-worker = Celery(__name__, backend=config.REDIS_URL, broker=config.REDIS_URL)
+worker = Celery(__name__)
+worker.conf.update(
+    broker_url=config.REDIS_URL,
+    enable_utc=True,
+    result_backend=config.REDIS_URL,
+    result_serializer="json",
+    task_serializer="json",
+    task_track_started=True,
+)
 
 
 @worker.task()

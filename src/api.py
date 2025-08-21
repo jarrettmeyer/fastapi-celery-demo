@@ -57,7 +57,9 @@ async def get_task_websocket(ws: WebSocket, task_id: str):
         while True:
             result = AsyncResult(id=task_id)
             if result.state != last_known_state:
-                print(f"Task {task_id} state changed from {last_known_state} to {result.state}")
+                print(
+                    f"Task {task_id} state changed from {last_known_state} to {result.state}"
+                )
                 response = GetTaskWebsocketResponse(
                     task_id=str(result.id),
                     state=result.state,
