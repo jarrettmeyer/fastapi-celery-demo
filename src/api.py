@@ -9,5 +9,5 @@ app = FastAPI()
 @app.post("/tasks", response_model=CreateTaskResponse)
 async def create_task(request: CreateTaskRequest):
 	# Start the celery task asynchronously
-	result = start_task.delay(request.duration)
+	result = start_task.delay(duration=request.duration)
 	return CreateTaskResponse(task_id=result.id, duration=request.duration)
