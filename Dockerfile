@@ -6,12 +6,15 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/fastapi-celery-demo/.venv/bin:$PATH"
 
+# Upgrade pip.
 RUN pip install --upgrade pip
 RUN pip install uv
 
-COPY ./ ./
-
+# Install packages.
+COPY ./pyproject.toml ./
 RUN uv sync
+
+COPY ./ ./
 
 ENTRYPOINT []
 
