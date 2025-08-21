@@ -39,8 +39,8 @@ async def get_task(task_id: str):
 
     response = GetTaskResponse(
         task_id=str(result.id),
-        status=result.status,
-        date_done=result.date_done,
+        state=result.state,
+        date_done=str(result.date_done) if result.date_done else None,
     )
     return JSONResponse(
         status_code=status.HTTP_200_OK,
@@ -51,20 +51,20 @@ async def get_task(task_id: str):
 @app.websocket("/tasks/{task_id}/ws")
 async def get_task_websocket(ws: WebSocket, task_id: str):
     await ws.accept()
-    last_known_status = None
+    last_known_state = None
 
     try:
         while True:
             result = AsyncResult(id=task_id)
-            if result.status != last_known_status:
-                print(f"Task {task_id} state changed from {last_known_status} to {result.status}")
+            if result.state != last_known_state:
+                print(f"Task {task_id} state changed from {last_known_state} to {result.state}")
                 response = GetTaskWebsocketResponse(
                     task_id=str(result.id),
-                    status=result.status,
+                    state=result.state,
                     date_done=str(result.date_done) if result.date_done else None,
                 )
                 await ws.send_json(response.model_dump())
-                last_known_status = result.status
+                last_known_state = result.status
             if result.status in ("SUCCESS"):
                 break
             await asyncio.sleep(1)

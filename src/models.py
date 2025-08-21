@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 
@@ -14,10 +13,11 @@ class CreateTaskResponse(BaseModel):
 
 class GetTaskResponse(BaseModel):
     task_id: str
-    status: str
-    date_done: Optional[datetime]
+    state: str
+    date_done: Optional[str]
+
 
 class GetTaskWebsocketResponse(BaseModel):
     task_id: str
-    status: str
+    state: str
     date_done: Optional[str]
