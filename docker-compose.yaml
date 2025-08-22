@@ -3,14 +3,14 @@ services:
   redis:
     image: redis:8
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "6379:6379"
 
   worker:
     depends_on:
       - redis
     build:
       context: "."
-    command: celery -A src.worker worker --concurrency=10 --loglevel=INFO
+    command: celery -A src.worker worker --concurrency=4 --loglevel=INFO
     environment:
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
 
