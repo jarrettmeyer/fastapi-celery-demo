@@ -12,9 +12,20 @@ from .models import (
     GetTaskWebsocketResponse,
 )
 from .worker import start_task
+from fastapi.middleware.cors import CORSMiddleware
 
+
+# Create a new FastAPI app.
 app = FastAPI()
 
+# Add CORS policy.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/", response_model=GetIndexResponse)
 async def get_index():
