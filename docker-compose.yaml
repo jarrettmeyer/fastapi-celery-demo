@@ -33,6 +33,10 @@ services:
       context: "."
     ports:
       - "9001:9001"
+    volumes:
+      - ".:/opt/fastapi-celery-demo"
+      - "/opt/fastapi-celery-demo/.venv"
+      - "/opt/fastapi-celery-demo/src/__pycache__"
     command: fastapi run src/api.py --host 0.0.0.0 --port 9001
     environment:
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}

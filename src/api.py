@@ -7,12 +7,31 @@ from fastapi.responses import JSONResponse
 from .models import (
     CreateTaskRequest,
     CreateTaskResponse,
+    GetIndexResponse,
     GetTaskResponse,
     GetTaskWebsocketResponse,
 )
 from .worker import start_task
 
 app = FastAPI()
+
+
+@app.get("/", response_model=GetIndexResponse)
+async def get_index():
+    response = GetIndexResponse()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=response.model_dump(),
+    )
+
+
+@app.get("/health", response_model=GetIndexResponse)
+async def get_health():
+    response = GetIndexResponse()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=response.model_dump(),
+    )
 
 
 @app.post("/tasks", response_model=CreateTaskResponse)

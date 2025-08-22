@@ -1,5 +1,9 @@
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel
+
+
+class GetIndexResponse(BaseModel):
+    status: Literal["ok"] = "ok"
 
 
 class CreateTaskRequest(BaseModel):
