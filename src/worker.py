@@ -24,4 +24,8 @@ def _start_task(duration: int) -> bool:
     return True
 
 
+def revoke_task(task_id: str):
+    worker.control.revoke(task_id, terminate=True)
+
+
 start_task = cast(Task, _start_task)

@@ -11,7 +11,7 @@ from .models import (
     GetTaskResponse,
     GetTaskWebsocketResponse,
 )
-from .worker import start_task
+from .worker import revoke_task, start_task
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -102,3 +102,12 @@ async def get_task_websocket(ws: WebSocket, task_id: str):
             await asyncio.sleep(1)
     except WebSocketDisconnect:
         pass
+
+
+@app.delete("/tasks/{task_id}")
+async def delete_task(task_id: str):
+    revoke_task(task_id=task_id)
+    return JSONResponse(
+        status_code=status.HTTP_204_NO_CONTENT,
+        content=None,
+    )
