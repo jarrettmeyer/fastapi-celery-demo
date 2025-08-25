@@ -2,7 +2,7 @@ import asyncio
 
 from celery.result import AsyncResult
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from .models import (
     CreateTaskRequest,
@@ -16,10 +16,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 # Create a new FastAPI app.
-app = FastAPI()
+fastapi_app = FastAPI()
 
 # Add CORS policy.
-app.add_middleware(
+fastapi_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
@@ -27,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/", response_model=GetIndexResponse)
+@fastapi_app.get("/", response_model=GetIndexResponse)
 async def get_index():
     response = GetIndexResponse()
     return JSONResponse(
@@ -36,7 +36,7 @@ async def get_index():
     )
 
 
-@app.get("/health", response_model=GetIndexResponse)
+@fastapi_app.get("/health", response_model=GetIndexResponse)
 async def get_health():
     response = GetIndexResponse()
     return JSONResponse(
@@ -45,7 +45,7 @@ async def get_health():
     )
 
 
-@app.post("/tasks", response_model=CreateTaskResponse)
+@fastapi_app.post("/tasks", response_model=CreateTaskResponse)
 async def create_task(request: CreateTaskRequest):
     # Start the celery task asynchronously
     result = start_task.delay(duration=request.duration)
@@ -57,7 +57,7 @@ async def create_task(request: CreateTaskRequest):
     )
 
 
-@app.get("/tasks/{task_id}", response_model=GetTaskResponse)
+@fastapi_app.get("/tasks/{task_id}", response_model=GetTaskResponse)
 async def get_task(task_id: str):
     result = AsyncResult(id=task_id)
 
@@ -78,7 +78,7 @@ async def get_task(task_id: str):
     )
 
 
-@app.websocket("/tasks/{task_id}/ws")
+@fastapi_app.websocket("/tasks/{task_id}/ws")
 async def get_task_websocket(ws: WebSocket, task_id: str):
     await ws.accept()
     last_known_state = None
@@ -86,7 +86,7 @@ async def get_task_websocket(ws: WebSocket, task_id: str):
     try:
         while True:
             result = AsyncResult(id=task_id)
-            if result.state != last_known_state:
+            if last_known_state is None or result.state != last_known_state:
                 print(
                     f"Task {task_id} state changed from {last_known_state} to {result.state}"
                 )
@@ -104,10 +104,7 @@ async def get_task_websocket(ws: WebSocket, task_id: str):
         pass
 
 
-@app.delete("/tasks/{task_id}")
+@fastapi_app.delete("/tasks/{task_id}")
 async def delete_task(task_id: str):
     revoke_task(task_id=task_id)
-    return JSONResponse(
-        status_code=status.HTTP_204_NO_CONTENT,
-        content=None,
-    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
