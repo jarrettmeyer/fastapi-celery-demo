@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: worker
+    command: celery -A src.worker worker --concurrency=2 --loglevel=INFO
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_RESULT_EXPIRES=900
+      - PROGRESS_UPDATE_INTERVAL=1.0
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    command: fastapi run src/api.py --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src/static:/opt/app/src/static
+      - ./src/templates:/opt/app/src/templates
+    depends_on:
+      - worker
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    restart: unless-stopped

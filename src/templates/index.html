@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FastAPI + Celery Demo</title>
+        <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+        <link href="/static/bootstrap.min.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h1 class="mb-4">FastAPI + Celery Demo</h1>
+
+            <!-- Create New Task -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Create New Task
+                        <span
+                            id="taskFormSpinner"
+                            class="spinner-border spinner-border-sm ms-2"
+                            role="status"
+                            style="display: none"
+                        >
+                            <span class="visually-hidden">Loading...</span>
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="taskForm" class="row g-3">
+                        <div class="col-auto">
+                            <label for="duration" class="form-label"
+                                >Duration (seconds):</label
+                            >
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="duration"
+                                min="1"
+                                value="30"
+                                required
+                            />
+                        </div>
+                        <div class="col-auto">
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                style="margin-top: 32px"
+                            >
+                                Create Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tasks -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Tasks
+                        <span
+                            id="taskSpinner"
+                            class="spinner-border spinner-border-sm ms-2"
+                            role="status"
+                            style="display: none"
+                        >
+                            <span class="visually-hidden">Loading...</span>
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>State</th>
+                                    <th>Progress</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="taskList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Background Workers -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Background Workers
+                        <span
+                            id="workersSpinner"
+                            class="spinner-border spinner-border-sm ms-2"
+                            role="status"
+                            style="display: none"
+                        >
+                            <span class="visually-hidden">Loading...</span>
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Worker Name</th>
+                                    <th>Concurrency</th>
+                                    <th>Uptime</th>
+                                    <th>Registered Tasks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workersList">
+                                <!-- Workers will be populated here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="/static/index.js"></script>
+    </body>
+</html>

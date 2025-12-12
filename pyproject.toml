@@ -1,0 +1,17 @@
+[project]
+name = "fastapi-celery-demo"
+version = "0.1.0"
+description = "FastAPI + Celery demo with Redis backend"
+requires-python = ">=3.13"
+dependencies = [
+    "celery>=5.5.3",
+    "fastapi[standard]>=0.124.2",
+    "mypy>=1.19.0",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.6.1",
+    "redis>=6.4.0",
+]
+
+[[tool.mypy.overrides]]
+module = ["celery.*"]
+follow_untyped_imports = true
